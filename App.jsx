@@ -3,6 +3,8 @@ import Sidebar from "./components/Sidebar"
 import Editor from "./components/Editor"
 import Split from "react-split"
 import { nanoid } from "nanoid"
+import { onSnapshot } from "firebase/firestore"
+import { notesCollection } from "./firebase"
 
 export default function App() {
     const [notes, setNotes] = React.useState(
