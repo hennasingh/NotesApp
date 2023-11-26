@@ -9,12 +9,20 @@ export default function App() {
     const [notes, setNotes] = React.useState([])
     
     const [currentNoteId, setCurrentNoteId] = React.useState("")
+
+    const [tempNoteText, setTempNoteText] = React.useState("")
     
     const currentNote = 
         notes.find(note => note.id === currentNoteId) 
         || notes[0]
 
     const sortedNotes = notes.sort((a, b) => b.updatedAt - a.updatedAt)
+
+    React.useEffect(() => {
+        if (currentNote) {
+            setTempNoteText(currentNote.body)
+        }
+    }, [currentNote])
 
         React.useEffect(() => {
             const unsubscribe = onSnapshot(notesCollection, function(snapshot) {
@@ -27,6 +35,21 @@ export default function App() {
              })
             return unsubscribe
         }, [])
+
+        /**
+     * Create an effect that runs any time the tempNoteText changes
+     * Delay the sending of the request to Firebase
+     *  uses setTimeout
+     * use clearTimeout to cancel the timeout
+     */   
+        React.useEffect(() => {
+            const timeoutId = setTimeout(() => {
+                if (tempNoteText !== currentNote.body) {
+                    updateNote(tempNoteText)
+                }
+            }, 500)
+            return () => clearTimeout(timeoutId)
+        }, [tempNoteText])
 
     async function createNewNote() {
         const newNote = {
@@ -67,8 +90,8 @@ export default function App() {
                         />
    
                         <Editor
-                            currentNote={currentNote}
-                            updateNote={updateNote}
+                            tempNoteText={tempNoteText}
+                            setTempNoteText={setTempNoteText}
                         />
                     </Split>
                     :
